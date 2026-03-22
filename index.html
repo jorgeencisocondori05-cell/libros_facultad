@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Digital - Carrera de Estadística</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📚 Biblioteca Digital</h1>
+                <p>Carrera de Estadística - Recursos de Estudio</p>
+            </div>
+            <div class="header-actions">
+                <a href="admin.html" class="btn btn-admin">Acceso Profesores</a>
+            </div>
+        </header>
+
+        <!-- Filtros -->
+        <section class="filters-section">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="ciclo-filter">Ciclo:</label>
+                    <select id="ciclo-filter">
+                        <option value="">Todos los ciclos</option>
+                        <option value="1">I Ciclo</option>
+                        <option value="2">II Ciclo</option>
+                        <option value="3">III Ciclo</option>
+                        <option value="4">IV Ciclo</option>
+                        <option value="5">V Ciclo</option>
+                        <option value="6">VI Ciclo</option>
+                        <option value="7">VII Ciclo</option>
+                        <option value="8">VIII Ciclo</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="curso-filter">Curso:</label>
+                    <select id="curso-filter">
+                        <option value="">Todos los cursos</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="busqueda">Buscar:</label>
+                    <input type="text" id="busqueda" placeholder="Buscar por título o autor...">
+                </div>
+
+                <button class="btn btn-primary" onclick="aplicarFiltros()">Filtrar</button>
+                <button class="btn btn-secondary" onclick="limpiarFiltros()">Limpiar</button>
+            </div>
+        </section>
+
+        <!-- Sección de libros -->
+        <section class="books-section">
+            <div class="books-grid" id="books-grid">
+                <div class="loading">Cargando libros...</div>
+            </div>
+        </section>
+
+        <!-- Modal para detalles del libro -->
+        <div id="book-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="cerrarModal()">&times;</span>
+                <div class="modal-body">
+                    <h2 id="modal-title"></h2>
+                    <div class="modal-info">
+                        <p><strong>Autor:</strong> <span id="modal-author"></span></p>
+                        <p><strong>Curso:</strong> <span id="modal-course"></span></p>
+                        <p><strong>Ciclo:</strong> <span id="modal-ciclo"></span></p>
+                        <p><strong>Descripción:</strong></p>
+                        <p id="modal-description"></p>
+                        <p><strong>ISBN:</strong> <span id="modal-isbn"></span></p>
+                        <p><strong>Año:</strong> <span id="modal-year"></span></p>
+                    </div>
+                    <div class="modal-actions">
+                        <a id="modal-download" href="#" class="btn btn-primary">Descargar PDF</a>
+                        <button class="btn btn-secondary" onclick="cerrarModal()">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Carrera de Estadística. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', cargarLibros);
+        document.getElementById('ciclo-filter').addEventListener('change', cargarCursosPorCiclo);
+    </script>
+</body>
+</html>
