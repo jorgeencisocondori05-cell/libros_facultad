@@ -43,7 +43,8 @@ $tablas = array(
         nombre VARCHAR(100) NOT NULL,
         ciclo_id INT NOT NULL,
         descripcion TEXT,
-        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id)
+        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id),
+        UNIQUE KEY uq_curso_ciclo (nombre, ciclo_id)
     )",
     
     "CREATE TABLE IF NOT EXISTS libros (
@@ -86,19 +87,56 @@ $conn->query("INSERT IGNORE INTO ciclos (numero, nombre) VALUES
     (5, 'V Ciclo'),
     (6, 'VI Ciclo'),
     (7, 'VII Ciclo'),
-    (8, 'VIII Ciclo')");
+    (8, 'VIII Ciclo'),
+    (9, 'IX Ciclo'),
+    (10, 'X Ciclo')");
 
 // Insertar cursos de ejemplo si no existen
 $conn->query("INSERT IGNORE INTO cursos (nombre, ciclo_id, descripcion) VALUES
-    ('Matemática I', 1, 'Curso introductorio de matemáticas'),
-    ('Estadística Descriptiva', 1, 'Fundamentos de estadística'),
-    ('Probabilidad I', 2, 'Teoría de probabilidades'),
-    ('Estadística Inferencial', 3, 'Métodos de inferencia'),
-    ('Análisis Multivariado', 4, 'Técnicas avanzadas de análisis'),
-    ('Series de Tiempo', 5, 'Análisis temporal de datos'),
-    ('Estadística Bayesiana', 6, 'Métodos bayesianos'),
-    ('Minería de Datos', 7, 'Data mining y machine learning'),
-    ('Seminario de Tesis', 8, 'Trabajo de tesis')");
+    ('Introducción a la Ciencia de Datos', 1, 'Curso base del primer ciclo'),
+    ('Técnicas de Exploración de Datos', 2, 'Métodos de análisis exploratorio'),
+    ('Ingeniería de Procesos', 3, 'Diseño y mejora de procesos'),
+    ('Lenguaje de Programación 1', 3, 'Fundamentos de programación'),
+    ('Análisis Estadístico', 4, 'Métodos estadísticos clásicos'),
+    ('Lenguaje de Programación 2', 4, 'Programación avanzada'),
+    ('Métodos de Optimización', 4, 'Optimización matemática y numérica'),
+    ('Sistemas de Gestión de Base de Datos 1', 4, 'Bases de datos relacionales básicas'),
+    ('Análisis de Regresión', 5, 'Modelos de regresión y predicción'),
+    ('Cálculo de Probabilidades', 5, 'Probabilidad aplicada'),
+    ('Diseños Experimentales', 5, 'Diseño y análisis de experimentos'),
+    ('Estrategias de Muestreo', 5, 'Métodos de muestreo para inferencia'),
+    ('Lenguaje de Programación 3', 5, 'Programación orientada a datos'),
+    ('Sistema de Gestión de Base de Datos 2', 6, 'Administración avanzada de bases de datos'),
+    ('Inferencia Estadística', 6, 'Inferencia y pruebas de hipótesis avanzadas'),
+    ('Diseños Experimentales 2', 6, 'Diseños de experimentos avanzados'),
+    ('Técnicas Multivariadas', 6, 'Análisis multivariante de datos'),
+    ('Algoritmia', 6, 'Algoritmos y estructuras de datos'),
+    ('Sistemas de Información Gerencial', 7, 'Sistemas de información para toma de decisiones'),
+    ('Modelos Lineales 1', 7, 'Modelos lineales clásicos'),
+    ('Estadística Bayesiana', 7, 'Métodos bayesianos'),
+    ('Estadística Computacional', 7, 'Cálculo estadístico con software'),
+    ('Marketing', 7, 'Principios de marketing y análisis de mercado'),
+    ('Estadística No Paramétrica', 8, 'Métodos estadísticos no paramétricos'),
+    ('Gestión Estratégica de Datos', 8, 'Estrategias de datos en la organización'),
+    ('Investigación de Mercados', 8, 'Técnicas y análisis de investigación de mercado'),
+    ('Máquinas de Aprendizaje', 8, 'Aprendizaje automático y minería de datos'),
+    ('Modelos Lineales 2', 8, 'Modelos lineales avanzados'),
+    ('Seminario en Estadística e Informática', 8, 'Seminario de integración'),
+    ('Análisis de Series de Tiempo', 9, 'Modelado y predicción temporal'),
+    ('Ciencia de Datos 1', 9, 'Introducción práctica a ciencia de datos'),
+    ('Estadística Espacial', 9, 'Análisis de datos geoespaciales'),
+    ('Gestión de Proyectos de Información', 9, 'Metodologías de gestión de proyectos'),
+    ('Seminario en Estadística e Informática 2', 9, 'Seminario avanzado'),
+    ('Ciencia de Datos 2', 10, 'Segunda parte de ciencia de datos'),
+    ('Seminario en Estadística e Informática 3', 10, 'Proyecto final'),
+    ('Tecnologías Emergentes', 10, 'Tendencias y herramientas emergentes')");
+
+// Limpiar duplicados de cursos en caso de inserciones anteriores repetidas
+$conn->query("DELETE c1 FROM cursos c1
+  INNER JOIN cursos c2
+  WHERE c1.id > c2.id
+    AND c1.nombre = c2.nombre
+    AND c1.ciclo_id = c2.ciclo_id");
 
 // Insertar profesor de ejemplo si no existe
 $conn->query("INSERT IGNORE INTO profesores (nombre, email, usuario, contraseña, departamento) VALUES

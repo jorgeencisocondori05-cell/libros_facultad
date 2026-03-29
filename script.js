@@ -19,6 +19,41 @@ async function cargarLibros() {
     }
 }
 
+// Cargar ciclos para el filtro
+async function cargarCiclosFiltro() {
+    const cicloFilter = document.getElementById('ciclo-filter');
+    cicloFilter.innerHTML = '<option value="">Todos los ciclos</option>';
+
+    try {
+        const response = await fetch('api/get_cycles.php');
+        const data = await response.json();
+
+        if (data.success) {
+            data.cycles.forEach(ciclo => {
+                const option = document.createElement('option');
+                option.value = ciclo.id;
+                option.textContent = `${ciclo.numero} - ${ciclo.nombre}`;
+                cicloFilter.appendChild(option);
+            });
+        } else {
+            for (let i = 1; i <= 10; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Ciclo ${i}`;
+                cicloFilter.appendChild(option);
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar ciclos:', error);
+        for (let i = 1; i <= 10; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `Ciclo ${i}`;
+            cicloFilter.appendChild(option);
+        }
+    }
+}
+
 // Cargar cursos según el ciclo seleccionado
 async function cargarCursosPorCiclo() {
     const cicloSelect = document.getElementById('ciclo-filter');
@@ -58,11 +93,19 @@ function aplicarFiltros() {
     let librosFiltrados = todosLibros;
     
     if (ciclo) {
-        librosFiltrados = librosFiltrados.filter(libro => libro.ciclo == ciclo);
+        const cicloSeleccionado = Number(ciclo);
+        console.log('Filtro ciclo:', cicloSeleccionado, 'libros antes:', librosFiltrados.length);
+        librosFiltrados = librosFiltrados.filter(libro => {
+            const cicloLibroId = Number(libro.ciclo_id);
+            const cicloLibroNumero = Number(libro.ciclo_numero);
+            return cicloLibroId === cicloSeleccionado || cicloLibroNumero === cicloSeleccionado;
+        });
+        console.log('libros después de filtro ciclo:', librosFiltrados.length);
     }
     
     if (curso) {
-        librosFiltrados = librosFiltrados.filter(libro => libro.curso_id == curso);
+        const cursoSeleccionado = Number(curso);
+        librosFiltrados = librosFiltrados.filter(libro => Number(libro.curso_id) === cursoSeleccionado);
     }
     
     if (busqueda) {
@@ -100,7 +143,7 @@ function mostrarLibros(libros) {
                 <p><strong>Autor:</strong> ${libro.autor}</p>
                 <p><strong>Curso:</strong> ${libro.curso_nombre}</p>
                 <div class="book-footer">
-                    <span class="book-ciclo">Ciclo ${libro.ciclo}</span>
+                    <span class="book-ciclo">Ciclo ${libro.ciclo_numero || libro.ciclo_nombre || libro.ciclo_id || libro.ciclo}</span>
                     <button class="btn btn-primary btn-btn" onclick="event.stopPropagation(); abrirModal(${libro.id})">Ver</button>
                 </div>
             </div>
@@ -117,17 +160,27 @@ function abrirModal(libroId) {
     document.getElementById('modal-title').textContent = libro.titulo;
     document.getElementById('modal-author').textContent = libro.autor;
     document.getElementById('modal-course').textContent = libro.curso_nombre;
-    document.getElementById('modal-ciclo').textContent = `Ciclo ${libro.ciclo}`;
+    document.getElementById('modal-ciclo').textContent = `Ciclo ${libro.ciclo_numero || libro.ciclo}`;
     document.getElementById('modal-description').textContent = libro.descripcion || 'Sin descripción disponible';
     document.getElementById('modal-isbn').textContent = libro.isbn || 'No especificado';
     document.getElementById('modal-year').textContent = libro.año_publicacion || 'No especificado';
     
     const downloadBtn = document.getElementById('modal-download');
-    if (libro.archivo_pdf) {
-        downloadBtn.href = `descargas/${libro.archivo_pdf}`;
+    const archivoUrl = libro.archivo_url || '';
+    const archivoRaw = libro.archivo_pdf;
+    const archivo = archivoRaw && archivoRaw !== 'null' && archivoRaw !== 'undefined' ? archivoRaw.trim() : '';
+
+    if (archivo && archivoUrl) {
+        downloadBtn.href = archivoUrl;
+        downloadBtn.setAttribute('download', archivo);
         downloadBtn.style.display = 'inline-block';
+        downloadBtn.textContent = 'Descargar PDF';
+        console.log('Link de descarga generado (archivo_url):', archivoUrl);
     } else {
+        downloadBtn.href = '#';
+        downloadBtn.removeAttribute('download');
         downloadBtn.style.display = 'none';
+        console.warn('No hay archivo para descargar en este libro:', libro.id, libro.titulo, libro.archivo_pdf, libro.archivo_url);
     }
     
     document.getElementById('book-modal').style.display = 'block';

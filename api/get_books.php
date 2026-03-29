@@ -5,9 +5,10 @@ require_once 'config.php';
 $conn = obtenerConexion();
 
 // Obtener todos los libros
-$sql = "SELECT l.*, c.nombre as curso_nombre, p.nombre as profesor_nombre 
+$sql = "SELECT l.*, COALESCE(l.archivo_pdf, '') AS archivo_pdf, CONCAT('/libros_facultad/descargas/', COALESCE(l.archivo_pdf, '')) AS archivo_url, c.nombre as curso_nombre, ci.numero as ciclo_numero, ci.nombre as ciclo_nombre, p.nombre as profesor_nombre 
         FROM libros l 
         JOIN cursos c ON l.curso_id = c.id 
+        JOIN ciclos ci ON c.ciclo_id = ci.id 
         JOIN profesores p ON l.profesor_id = p.id 
         ORDER BY l.fecha_subida DESC";
 

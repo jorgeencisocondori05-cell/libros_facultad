@@ -127,8 +127,8 @@ Documentación (8):
 
 ### Sistema General 🔧
 1. ✅ Base de datos completa
-2. ✅ 8 ciclos académicos
-3. ✅ 9 cursos de ejemplo
+2. ✅ 10 ciclos académicos
+3. ✅ 37 cursos de ejemplo
 4. ✅ Almacenamiento seguro
 5. ✅ Auditoría de descargas
 6. ✅ Escalabilidad garantizada
@@ -215,14 +215,16 @@ Ir a http://localhost/libros_facultad/
 
 | Ciclo | Cursos |
 |-------|--------|
-| **I** | Matemática I, Estadística Descriptiva |
-| **II** | Probabilidad I |
-| **III** | Estadística Inferencial |
-| **IV** | Análisis Multivariado |
-| **V** | Series de Tiempo |
-| **VI** | Estadística Bayesiana |
-| **VII** | Minería de Datos |
-| **VIII** | Seminario de Tesis |
+| **I** | Introducción a la Ciencia de Datos |
+| **II** | Técnicas de Exploración de Datos |
+| **III** | Ingeniería de Procesos, Lenguaje de Programación 1 |
+| **IV** | Análisis Estadístico, Lenguaje de Programación 2, Métodos de Optimización, Sistemas de Gestión de Base de Datos 1 |
+| **V** | Análisis de Regresión, Cálculo de Probabilidades, Diseños Experimentales, Estrategias de Muestreo, Lenguaje de Programación 3 |
+| **VI** | Sistema de Gestión de Base de Datos 2, Inferencia Estadística, Diseños Experimentales 2, Técnicas Multivariadas, Algoritmia |
+| **VII** | Sistemas de Información Gerencial, Modelos Lineales 1, Estadística Bayesiana, Estadística Computacional, Marketing |
+| **VIII** | Estadística No Paramétrica, Gestión Estratégica de Datos, Investigación de Mercados, Máquinas de Aprendizaje, Modelos Lineales 2, Seminario en Estadística e Informática |
+| **IX** | Análisis de Series de Tiempo, Ciencia de Datos 1, Estadística Espacial, Gestión de Proyectos de Información, Seminario en Estadística e Informática 2 |
+| **X** | Ciencia de Datos 2, Seminario en Estadística e Informática 3, Tecnologías Emergentes |
 
 ---
 

@@ -49,9 +49,9 @@
 
             <!-- Navegación por tabs -->
             <div class="tabs" style="margin-bottom: 20px;">
-                <button class="tab-btn active" onclick="cambiarTab('subir')">Subir Libro</button>
-                <button class="tab-btn" onclick="cambiarTab('mis-libros')">Mis Libros</button>
-                <button class="tab-btn" onclick="cambiarTab('estadisticas')">Estadísticas</button>
+                <button class="tab-btn active" onclick="cambiarTab('subir', event)">Subir Libro</button>
+                <button class="tab-btn" onclick="cambiarTab('mis-libros', event)">Mis Libros</button>
+                <button class="tab-btn" onclick="cambiarTab('estadisticas', event)">Estadísticas</button>
             </div>
 
             <!-- Tab: Subir Libro -->
@@ -78,40 +78,32 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group">
-                                <label for="ciclo">Ciclo *</label>
-                                <select id="ciclo" required onchange="cargarCursos()">
-                                    <option value="">Seleccione un ciclo</option>
-                                    <option value="1">I Ciclo</option>
-                                    <option value="2">II Ciclo</option>
-                                    <option value="3">III Ciclo</option>
-                                    <option value="4">IV Ciclo</option>
-                                    <option value="5">V Ciclo</option>
-                                    <option value="6">VI Ciclo</option>
-                                    <option value="7">VII Ciclo</option>
-                                    <option value="8">VIII Ciclo</option>
-                                </select>
-                            </div>
+    <div class="form-group">
+        <label for="ciclo">Ciclo *</label>
+        <select id="ciclo" required onchange="cargarCursos()">
+            <option value="">Seleccione un ciclo</option>
+        </select>
+    </div>
 
-                            <div class="form-group">
-                                <label for="curso">Curso *</label>
-                                <select id="curso" required>
-                                    <option value="">Seleccione un curso</option>
-                                </select>
-                            </div>
-                        </div>
+    <div class="form-group">
+        <label for="curso">Curso *</label>
+        <select id="curso" required disabled>
+            <option value="">Seleccione un ciclo primero</option>
+        </select>
+    </div>
+</div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="isbn">ISBN</label>
-                                <input type="text" id="isbn">
-                            </div>
+<div class="form-row">
+    <div class="form-group">
+        <label for="isbn">ISBN</label>
+        <input type="text" id="isbn">
+    </div>
 
-                            <div class="form-group">
-                                <label for="archivo">Archivo PDF *</label>
-                                <input type="file" id="archivo" accept=".pdf" required>
-                            </div>
-                        </div>
+    <div class="form-group">
+        <label for="archivo">Archivo PDF *</label>
+        <input type="file" id="archivo" accept=".pdf" required>
+    </div>
+</div>
 
                         <div class="form-group">
                             <label for="descripcion">Descripción</label>

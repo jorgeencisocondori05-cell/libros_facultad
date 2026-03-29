@@ -246,8 +246,8 @@ C:\xampp\htdocs\libros_facultad\
 ### Sistema General ✅
 - [x] Base de datos MySQL completamente estructurada
 - [x] API REST JSON
-- [x] 8 ciclos académicos predefinidos
-- [x] 9 cursos de ejemplo
+- [x] 10 ciclos académicos predefinidos
+- [x] 37 cursos de ejemplo
 - [x] 1 usuario de prueba (demo/demo123)
 - [x] Almacenamiento seguro de archivos
 - [x] Índices de base de datos

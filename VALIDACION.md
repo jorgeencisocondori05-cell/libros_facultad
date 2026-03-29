@@ -82,8 +82,8 @@ Fecha: 22 de Marzo de 2026
 - ✅ Autenticación segura
 - ✅ Almacenamiento de archivos
 - ✅ Índices de base de datos
-- ✅ 8 ciclos académicos
-- ✅ 9 cursos de ejemplo
+- ✅ 10 ciclos académicos
+- ✅ 37 cursos de ejemplo
 - ✅ 1 usuario de prueba
 
 ---
@@ -131,8 +131,8 @@ Fecha: 22 de Marzo de 2026
 - ✅ idx_libro_autor
 
 ### Datos Iniciales
-- ✅ 8 ciclos académicos
-- ✅ 9 cursos de ejemplo
+- ✅ 10 ciclos académicos
+- ✅ 37 cursos de ejemplo
 - ✅ 1 profesor demo
 - ✅ 0 libros (para agregar)
 
@@ -249,15 +249,17 @@ C:\xampp\htdocs\libros_facultad\
 
 | Ciclo | Cursos |
 |-------|--------|
-| I | 2 cursos |
+| I | 1 curso |
 | II | 1 curso |
-| III | 1 curso |
-| IV | 1 curso |
-| V | 1 curso |
-| VI | 1 curso |
-| VII | 1 curso |
-| VIII | 1 curso |
-| **Total** | **9 cursos** |
+| III | 2 cursos |
+| IV | 4 cursos |
+| V | 5 cursos |
+| VI | 5 cursos |
+| VII | 5 cursos |
+| VIII | 6 cursos |
+| IX | 5 cursos |
+| X | 3 cursos |
+| **Total** | **37 cursos** |
 
 ---
 

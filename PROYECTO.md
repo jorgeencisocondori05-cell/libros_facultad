@@ -207,8 +207,8 @@ Mobile (320px)
 ## 📊 Estadísticas
 
 ### Datos Iniciales
-- 8 ciclos
-- 9 cursos
+- 10 ciclos
+- 37 cursos
 - 1 profesor demo
 - 0 libros (se agregan mediante panel)
 
@@ -297,14 +297,16 @@ GET  /api/get_stats.php?profesor_id=1
 ## 🎓 Ciclos Académicos
 
 ```
-I Ciclo    → Matemática I, Estadística Descriptiva
-II Ciclo   → Probabilidad I
-III Ciclo  → Estadística Inferencial
-IV Ciclo   → Análisis Multivariado
-V Ciclo    → Series de Tiempo
-VI Ciclo   → Estadística Bayesiana
-VII Ciclo  → Minería de Datos
-VIII Ciclo → Seminario de Tesis
+I Ciclo    → Introducción a la Ciencia de Datos
+II Ciclo   → Técnicas de Exploración de Datos
+III Ciclo  → Ingeniería de Procesos, Lenguaje de Programación 1
+IV Ciclo   → Análisis Estadístico, Lenguaje de Programación 2, Métodos de Optimización, Sistemas de Gestión de Base de Datos 1
+V Ciclo    → Análisis de Regresión, Cálculo de Probabilidades, Diseños Experimentales, Estrategias de Muestreo, Lenguaje de Programación 3
+VI Ciclo   → Sistema de Gestión de Base de Datos 2, Inferencia Estadística, Diseños Experimentales 2, Técnicas Multivariadas, Algoritmia
+VII Ciclo  → Sistemas de Información Gerencial, Modelos Lineales 1, Estadística Bayesiana, Estadística Computacional, Marketing
+VIII Ciclo → Estadística No Paramétrica, Gestión Estratégica de Datos, Investigación de Mercados, Máquinas de Aprendizaje, Modelos Lineales 2, Seminario en Estadística e Informática
+IX Ciclo   → Análisis de Series de Tiempo, Ciencia de Datos 1, Estadística Espacial, Gestión de Proyectos de Información, Seminario en Estadística e Informática 2
+X Ciclo    → Ciencia de Datos 2, Seminario en Estadística e Informática 3, Tecnologías Emergentes
 ```
 
 ## ✨ Características Futuras

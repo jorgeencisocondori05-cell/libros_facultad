@@ -23,6 +23,25 @@ if (empty($titulo) || empty($autor) || $ciclo <= 0 || $curso <= 0) {
     responderJSON(false, 'Todos los campos requeridos deben completarse');
 }
 
+// Validar relación curso-ciclo
+$sql_curso = "SELECT ciclo_id FROM cursos WHERE id = ?";
+$stmt_curso = $conn->prepare($sql_curso);
+$stmt_curso->bind_param("i", $curso);
+$stmt_curso->execute();
+$result_curso = $stmt_curso->get_result();
+if (!$result_curso || $result_curso->num_rows === 0) {
+    responderJSON(false, 'Curso inválido');
+}
+$curso_datos = $result_curso->fetch_assoc();
+$ciclo_del_curso = intval($curso_datos['ciclo_id']);
+
+if ($ciclo_del_curso !== $ciclo) {
+    responderJSON(false, 'Ciclo y curso no coinciden. Seleccione el curso correspondiente al ciclo.');
+}
+
+// Establecer ciclo según curso para evitar inconsistencias
+$ciclo = $ciclo_del_curso;
+
 if (!isset($_FILES['archivo']) || $_FILES['archivo']['error'] !== UPLOAD_ERR_OK) {
     responderJSON(false, 'Error al subir el archivo');
 }

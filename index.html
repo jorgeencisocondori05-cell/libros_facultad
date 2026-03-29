@@ -23,31 +23,23 @@
         <section class="filters-section">
             <div class="filters">
                 <div class="filter-group">
-                    <label for="ciclo-filter">Ciclo:</label>
-                    <select id="ciclo-filter">
-                        <option value="">Todos los ciclos</option>
-                        <option value="1">I Ciclo</option>
-                        <option value="2">II Ciclo</option>
-                        <option value="3">III Ciclo</option>
-                        <option value="4">IV Ciclo</option>
-                        <option value="5">V Ciclo</option>
-                        <option value="6">VI Ciclo</option>
-                        <option value="7">VII Ciclo</option>
-                        <option value="8">VIII Ciclo</option>
-                    </select>
-                </div>
+    <label for="ciclo-filter">Ciclo:</label>
+    <select id="ciclo-filter">
+        <option value="">Todos los ciclos</option>
+    </select>
+</div>
 
-                <div class="filter-group">
-                    <label for="curso-filter">Curso:</label>
-                    <select id="curso-filter">
-                        <option value="">Todos los cursos</option>
-                    </select>
-                </div>
+<div class="filter-group">
+    <label for="curso-filter">Curso:</label>
+    <select id="curso-filter">
+        <option value="">Todos los cursos</option>
+    </select>
+</div>
 
-                <div class="filter-group">
-                    <label for="busqueda">Buscar:</label>
-                    <input type="text" id="busqueda" placeholder="Buscar por título o autor...">
-                </div>
+<div class="filter-group">
+    <label for="busqueda">Buscar:</label>
+    <input type="text" id="busqueda" placeholder="Buscar por título o autor...">
+</div>
 
                 <button class="btn btn-primary" onclick="aplicarFiltros()">Filtrar</button>
                 <button class="btn btn-secondary" onclick="limpiarFiltros()">Limpiar</button>
@@ -91,8 +83,11 @@
 
     <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', cargarLibros);
-        document.getElementById('ciclo-filter').addEventListener('change', cargarCursosPorCiclo);
+        document.addEventListener('DOMContentLoaded', async () => {
+            await cargarCiclosFiltro();
+            cargarLibros();
+            document.getElementById('ciclo-filter').addEventListener('change', cargarCursosPorCiclo);
+        });
     </script>
 </body>
 </html>

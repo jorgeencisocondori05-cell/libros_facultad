@@ -105,29 +105,61 @@ libros_facultad/
 ## 📊 Ciclos y Cursos Disponibles
 
 ### I Ciclo
-- Matemática I
-- Estadística Descriptiva
+- Introducción a la Ciencia de Datos
 
 ### II Ciclo
-- Probabilidad I
+- Técnicas de Exploración de Datos
 
 ### III Ciclo
-- Estadística Inferencial
+- Ingeniería de Procesos
+- Lenguaje de Programación 1
 
 ### IV Ciclo
-- Análisis Multivariado
+- Análisis Estadístico
+- Lenguaje de Programación 2
+- Métodos de Optimización
+- Sistemas de Gestión de Base de Datos 1
 
 ### V Ciclo
-- Series de Tiempo
+- Análisis de Regresión
+- Cálculo de Probabilidades
+- Diseños Experimentales
+- Estrategias de Muestreo
+- Lenguaje de Programación 3
 
 ### VI Ciclo
-- Estadística Bayesiana
+- Sistema de Gestión de Base de Datos 2
+- Inferencia Estadística
+- Diseños Experimentales 2
+- Técnicas Multivariadas
+- Algoritmia
 
 ### VII Ciclo
-- Minería de Datos
+- Sistemas de Información Gerencial
+- Modelos Lineales 1
+- Estadística Bayesiana
+- Estadística Computacional
+- Marketing
 
 ### VIII Ciclo
-- Seminario de Tesis
+- Estadística No Paramétrica
+- Gestión Estratégica de Datos
+- Investigación de Mercados
+- Máquinas de Aprendizaje
+- Modelos Lineales 2
+- Seminario en Estadística e Informática
+
+### IX Ciclo
+- Análisis de Series de Tiempo
+- Ciencia de Datos 1
+- Estadística Espacial
+- Gestión de Proyectos de Información
+- Seminario en Estadística e Informática 2
+
+### X Ciclo
+- Ciencia de Datos 2
+- Seminario en Estadística e Informática 3
+- Tecnologías Emergentes
 
 *Nota: Puedes agregar más cursos directamente en la base de datos MySQL*
 
