@@ -20,6 +20,7 @@
 
         <nav class="nav" aria-label="Navegación principal">
             <a href="#inicio" class="nav__link nav__link--active">Inicio</a>
+            <a href="#estadisticas" class="nav__link">Estadísticas</a>
             <a href="#profesores" class="nav__link">Profesores</a>
             <a href="#administradores" class="nav__link">Administradores</a>
         </nav>
@@ -27,6 +28,20 @@
 
     <main>
         <section class="hero" id="inicio">
+            <div class="hero__numbers" aria-hidden="true">
+                <span>01</span>
+                <span>10</span>
+                <span>001</span>
+                <span>24</span>
+                <span>101</span>
+                <span>08</span>
+                <span>64</span>
+                <span>12</span>
+                <span>99</span>
+                <span>07</span>
+                <span>42</span>
+                <span>18</span>
+            </div>
             <div class="hero__content">
                 <p class="hero__label">Repositorio académico organizado</p>
                 <h2>Encuentra material de estudio con una interfaz clara y profesional.</h2>
@@ -102,18 +117,48 @@
             </div>
         </section>
 
+        <section class="statistics" id="estadisticas" aria-labelledby="statistics-title">
+            <div class="section-heading">
+                <p class="section-kicker">Estadísticas</p>
+                <h3 id="statistics-title">Cursos más consultados</h3>
+            </div>
+
+            <div class="statistics-grid">
+                <article class="panel-card statistics-card">
+                    <p class="statistics-card__label">Resumen</p>
+                    <div class="hero__stats hero__stats--compact" id="stats-summary">
+                        <article class="stat-card">
+                            <span class="stat-card__value" id="stats-books">-</span>
+                            <span class="stat-card__label">libros</span>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-card__value" id="stats-courses">-</span>
+                            <span class="stat-card__label">cursos</span>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-card__value" id="stats-cycles">-</span>
+                            <span class="stat-card__label">ciclos</span>
+                        </article>
+                    </div>
+                </article>
+
+                <article class="panel-card statistics-card">
+                    <p class="statistics-card__label">Gráfico</p>
+                    <div id="top-courses-chart" class="top-chart"></div>
+                </article>
+            </div>
+        </section>
+
         <section class="roles" aria-label="Accesos por perfil">
             <article class="role-card" id="profesores">
                 <p class="role-card__tag">Profesores</p>
                 <h3>Publica y organiza material por curso.</h3>
-                <p>Más adelante conectaremos esta zona con la carga de archivos y el panel docente.</p>
                 <a href="admin.html" class="role-card__link">Ir al acceso docente</a>
             </article>
 
             <article class="role-card" id="administradores">
                 <p class="role-card__tag">Administradores</p>
                 <h3>Gestiona contenido, ciclos y cursos disponibles.</h3>
-                <p>Esta sección quedará lista para validación, administración y control del sistema.</p>
                 <a href="admin.html" class="role-card__link">Ir al panel administrativo</a>
             </article>
         </section>

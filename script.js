@@ -5,6 +5,10 @@ const mallaSelect = document.getElementById('malla');
 const cicloSelect = document.getElementById('ciclo');
 const cursoSelect = document.getElementById('curso');
 const searchInput = document.getElementById('search');
+const statsBooks = document.getElementById('stats-books');
+const statsCourses = document.getElementById('stats-courses');
+const statsCycles = document.getElementById('stats-cycles');
+const topCoursesChart = document.getElementById('top-courses-chart');
 
 const state = {
   cycles: [],
@@ -20,6 +24,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function normalizeText(value) {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
 async function getJson(url) {
   const response = await fetch(url, { credentials: 'same-origin' });
   const payload = await response.json();
@@ -31,12 +42,33 @@ async function getJson(url) {
   return payload.data;
 }
 
-function renderCards(books) {
+async function postJson(url, body) {
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  const payload = await response.json();
+
+  if (!response.ok || payload.success === false) {
+    throw new Error(payload.message || 'No se pudo completar la operación.');
+  }
+
+  return payload;
+}
+
+function renderCards(books, limitToEight = false) {
   if (!resultsList) {
     return;
   }
 
-  if (!Array.isArray(books) || books.length === 0) {
+  const visibleBooks = Array.isArray(books)
+    ? (limitToEight ? books.slice(0, 8) : books)
+    : [];
+
+  if (visibleBooks.length === 0) {
     resultsList.innerHTML = `
       <article class="card card--empty">
         <p class="card__meta">Sin resultados</p>
@@ -47,7 +79,7 @@ function renderCards(books) {
     return;
   }
 
-  resultsList.innerHTML = books.map((book) => {
+  resultsList.innerHTML = visibleBooks.map((book) => {
     const title = escapeHtml(book.title || 'Sin título');
     const author = escapeHtml(book.author || 'Autor no indicado');
     const curriculum = escapeHtml(book.curriculum_name || 'Malla no indicada');
@@ -56,6 +88,8 @@ function renderCards(books) {
     const description = escapeHtml(book.description || 'Sin descripción.');
     const uploader = escapeHtml(book.uploaded_by_name || 'No indicado');
     const filePath = escapeHtml(book.file_path || '#');
+    const bookId = escapeHtml(book.id || '');
+    const courseId = escapeHtml(book.course_id || '');
 
     return `
       <article class="card">
@@ -65,8 +99,53 @@ function renderCards(books) {
         <p><strong>Curso:</strong> ${course}</p>
         <p>${description}</p>
         <p><strong>Subido por:</strong> ${uploader}</p>
-        <a class="role-card__link" href="${filePath}" target="_blank" rel="noopener">Ver o descargar PDF</a>
+        <a class="role-card__link book-link" href="${filePath}" data-book-id="${bookId}" data-course-id="${courseId}" target="_blank" rel="noopener">Ver o descargar PDF</a>
       </article>
+    `;
+  }).join('');
+}
+
+function renderStatsSummary(data) {
+  if (statsBooks) {
+    statsBooks.textContent = data.books_count ?? '0';
+  }
+
+  if (statsCourses) {
+    statsCourses.textContent = data.courses_count ?? '0';
+  }
+
+  if (statsCycles) {
+    statsCycles.textContent = data.cycles_count ?? '0';
+  }
+}
+
+function renderTopCourses(items) {
+  if (!topCoursesChart) {
+    return;
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    topCoursesChart.innerHTML = '<p class="panel-empty">Todavía no hay consultas registradas.</p>';
+    return;
+  }
+
+  const maxViews = Math.max(...items.map((item) => Number(item.views_count) || 0), 1);
+
+  topCoursesChart.innerHTML = items.map((item) => {
+    const title = escapeHtml(item.course_name || 'Curso');
+    const curriculum = escapeHtml(item.curriculum_name || 'Malla');
+    const cycle = escapeHtml(item.cycle_number || '-');
+    const views = Number(item.views_count) || 0;
+    const width = Math.max(12, Math.round((views / maxViews) * 100));
+
+    return `
+      <div class="top-chart__item">
+        <div class="top-chart__meta">
+          <strong>${title}</strong>
+          <span>${curriculum} · Ciclo ${cycle} · ${views} consultas</span>
+        </div>
+        <div class="top-chart__bar"><span style="width:${width}%"></span></div>
+      </div>
     `;
   }).join('');
 }
@@ -117,7 +196,6 @@ function loadCyclesByCurriculum() {
   }
 
   const selectedCurriculumId = Number(mallaSelect.value);
-
   const filteredCycles = state.cycles.filter((cycle) => {
     if (!selectedCurriculumId) {
       return true;
@@ -153,6 +231,12 @@ async function loadCourses() {
 
 async function loadBooks() {
   const query = new URLSearchParams();
+  const hasFilters = Boolean(
+    (mallaSelect && mallaSelect.value) ||
+    (cicloSelect && cicloSelect.value) ||
+    (cursoSelect && cursoSelect.value) ||
+    (searchInput && searchInput.value.trim() !== '')
+  );
 
   if (cicloSelect && cicloSelect.value) {
     query.set('cycle_id', cicloSelect.value);
@@ -169,7 +253,42 @@ async function loadBooks() {
 
   const suffix = query.toString() ? `?${query.toString()}` : '';
   const books = await getJson(`${apiBase}/get_books.php${suffix}`);
-  renderCards(books);
+  renderCards(books, !hasFilters);
+}
+
+async function loadStatistics() {
+  const stats = await getJson(`${apiBase}/get_stats.php`);
+  renderStatsSummary(stats || {});
+
+  const topCourses = await getJson(`${apiBase}/get_top_courses.php`);
+  renderTopCourses(topCourses || []);
+}
+
+async function recordCourseView(courseId) {
+  if (!courseId) {
+    return;
+  }
+
+  try {
+    await postJson(`${apiBase}/record_course_view.php`, { course_id: Number(courseId) });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function openTrackedBook(bookId, courseId, filePath) {
+  if (!bookId || !filePath) {
+    return;
+  }
+
+  try {
+    await postJson(`${apiBase}/record_book_view.php`, { book_id: Number(bookId) });
+    await recordCourseView(courseId);
+  } catch (error) {
+    console.error(error);
+  }
+
+  window.open(filePath, '_blank', 'noopener');
 }
 
 function renderError(message) {
@@ -195,6 +314,7 @@ async function init() {
     await loadCurriculaAndCycles();
     await loadCourses();
     await loadBooks();
+    await loadStatistics();
   } catch (error) {
     renderError(error instanceof Error ? error.message : 'Error inesperado.');
   }
@@ -223,18 +343,52 @@ async function init() {
   }
 
   if (cursoSelect) {
-    cursoSelect.addEventListener('change', () => {
-      loadBooks().catch((error) => {
+    cursoSelect.addEventListener('change', async () => {
+      try {
+        await loadBooks();
+      } catch (error) {
         renderError(error instanceof Error ? error.message : 'Error inesperado.');
+        return;
+      }
+
+      recordCourseView(cursoSelect.value).catch((error) => {
+        console.error(error);
       });
     });
   }
 
-  filtersForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    loadBooks().catch((error) => {
-      renderError(error instanceof Error ? error.message : 'Error inesperado.');
+  if (searchInput) {
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        loadBooks().catch((error) => {
+          renderError(error instanceof Error ? error.message : 'Error inesperado.');
+        });
+      }
     });
+  }
+
+  resultsList.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    const bookLink = target.closest('.book-link');
+    if (bookLink instanceof HTMLAnchorElement) {
+      event.preventDefault();
+      openTrackedBook(bookLink.dataset.bookId, bookLink.dataset.courseId, bookLink.getAttribute('href') || '#');
+    }
+  });
+
+  filtersForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    try {
+      await loadBooks();
+    } catch (error) {
+      renderError(error instanceof Error ? error.message : 'Error inesperado.');
+      return;
+    }
   });
 }
 

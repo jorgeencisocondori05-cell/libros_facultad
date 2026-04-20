@@ -106,6 +106,42 @@ CREATE TABLE books (
         ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
+CREATE TABLE course_views (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    course_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_course_views_course (course_id),
+    KEY idx_course_views_user (user_id),
+    CONSTRAINT fk_course_views_course
+        FOREIGN KEY (course_id) REFERENCES courses (id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_course_views_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE book_views (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    book_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_book_views_book (book_id),
+    KEY idx_book_views_user (user_id),
+    CONSTRAINT fk_book_views_book
+        FOREIGN KEY (book_id) REFERENCES books (id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_book_views_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+) ENGINE=InnoDB;
+
 INSERT INTO roles (slug, name) VALUES
     ('admin', 'Administrador'),
     ('docente', 'Docente');

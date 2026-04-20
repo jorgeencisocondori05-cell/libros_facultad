@@ -6,7 +6,7 @@ $courseId = isset($_GET['course_id']) ? (int) $_GET['course_id'] : 0;
 $search = trim((string) ($_GET['search'] ?? ''));
 
 $sql =
-    'SELECT b.id, b.title, b.author, b.description, b.isbn, b.publication_year, b.file_path,
+    'SELECT b.id, b.course_id, b.title, b.author, b.description, b.isbn, b.publication_year, b.file_path,
             co.name AS course_name, cy.cycle_number, cur.name AS curriculum_name,
             u.full_name AS uploaded_by_name, b.created_at
      FROM books b

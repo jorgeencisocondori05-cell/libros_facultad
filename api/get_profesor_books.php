@@ -4,7 +4,7 @@ require __DIR__ . '/config.php';
 $user = require_role(['docente', 'admin']);
 
 $sql =
-    'SELECT b.id, b.title, b.author, b.description, b.isbn, b.publication_year, b.file_path,
+    'SELECT b.id, b.course_id, b.title, b.author, b.description, b.isbn, b.publication_year, b.file_path,
             co.name AS course_name, cy.cycle_number, b.created_at, u.full_name AS uploaded_by_name
      FROM books b
      INNER JOIN courses co ON co.id = b.course_id

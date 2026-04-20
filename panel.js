@@ -36,6 +36,23 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+async function postJson(url, body) {
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  const payload = await response.json();
+
+  if (!response.ok || payload.success === false) {
+    throw new Error(payload.message || 'No se pudo completar la operación.');
+  }
+
+  return payload;
+}
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
     credentials: 'same-origin',
@@ -127,11 +144,38 @@ function renderBooks(items) {
         <h3>${escapeHtml(book.title)}</h3>
         <p>Autor: ${escapeHtml(book.author)}</p>
         <p>Subido por: ${escapeHtml(book.uploaded_by_name)}</p>
-        <a href="${escapeHtml(book.file_path)}" target="_blank" rel="noopener">Abrir PDF</a>
+        <a href="${escapeHtml(book.file_path)}" class="book-link" data-book-id="${escapeHtml(book.id)}" data-course-id="${escapeHtml(book.course_id || '')}" target="_blank" rel="noopener">Abrir PDF</a>
       </div>
       <button type="button" class="panel-danger" data-delete-book="${book.id}">Eliminar</button>
     </article>
   `).join('');
+}
+
+async function recordCourseView(courseId) {
+  if (!courseId) {
+    return;
+  }
+
+  try {
+    await postJson('./api/record_course_view.php', { course_id: Number(courseId) });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function openTrackedBook(bookId, courseId, filePath) {
+  if (!bookId || !filePath) {
+    return;
+  }
+
+  try {
+    await postJson('./api/record_book_view.php', { book_id: Number(bookId) });
+    await recordCourseView(courseId);
+  } catch (error) {
+    console.error(error);
+  }
+
+  window.open(filePath, '_blank', 'noopener');
 }
 
 async function loadBooks() {
@@ -206,6 +250,13 @@ function bindEvents() {
   booksList.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    const bookLink = target.closest('.book-link');
+    if (bookLink instanceof HTMLAnchorElement) {
+      event.preventDefault();
+      openTrackedBook(bookLink.dataset.bookId, bookLink.dataset.courseId, bookLink.getAttribute('href') || '#');
       return;
     }
 
