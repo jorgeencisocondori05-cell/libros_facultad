@@ -3,91 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca Digital - Carrera de Estadística</title>
+    <title>Biblioteca Digital | Facultad</title>
+    <meta name="description" content="Sitio académico para filtrar recursos por malla curricular, ciclo y curso.">
     <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Encabezado -->
-        <header class="header">
-            <div class="header-content">
-                <h1>📚 Biblioteca Digital</h1>
-                <p>Carrera de Estadística - Recursos de Estudio</p>
-            </div>
-            <div class="header-actions">
-                <a href="admin.html" class="btn btn-admin">Acceso Profesores</a>
-            </div>
-        </header>
-
-        <!-- Filtros -->
-        <section class="filters-section">
-            <div class="filters">
-                <div class="filter-group">
-    <label for="ciclo-filter">Ciclo:</label>
-    <select id="ciclo-filter">
-        <option value="">Todos los ciclos</option>
-    </select>
-</div>
-
-<div class="filter-group">
-    <label for="curso-filter">Curso:</label>
-    <select id="curso-filter">
-        <option value="">Todos los cursos</option>
-    </select>
-</div>
-
-<div class="filter-group">
-    <label for="busqueda">Buscar:</label>
-    <input type="text" id="busqueda" placeholder="Buscar por título o autor...">
-</div>
-
-                <button class="btn btn-primary" onclick="aplicarFiltros()">Filtrar</button>
-                <button class="btn btn-secondary" onclick="limpiarFiltros()">Limpiar</button>
-            </div>
-        </section>
-
-        <!-- Sección de libros -->
-        <section class="books-section">
-            <div class="books-grid" id="books-grid">
-                <div class="loading">Cargando libros...</div>
-            </div>
-        </section>
-
-        <!-- Modal para detalles del libro -->
-        <div id="book-modal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="cerrarModal()">&times;</span>
-                <div class="modal-body">
-                    <h2 id="modal-title"></h2>
-                    <div class="modal-info">
-                        <p><strong>Autor:</strong> <span id="modal-author"></span></p>
-                        <p><strong>Curso:</strong> <span id="modal-course"></span></p>
-                        <p><strong>Ciclo:</strong> <span id="modal-ciclo"></span></p>
-                        <p><strong>Descripción:</strong></p>
-                        <p id="modal-description"></p>
-                        <p><strong>ISBN:</strong> <span id="modal-isbn"></span></p>
-                        <p><strong>Año:</strong> <span id="modal-year"></span></p>
-                    </div>
-                    <div class="modal-actions">
-                        <a id="modal-download" href="#" class="btn btn-primary">Descargar PDF</a>
-                        <button class="btn btn-secondary" onclick="cerrarModal()">Cerrar</button>
-                    </div>
-                </div>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand__mark">DAEI</span>
+            <div>
+                <p class="brand__eyebrow">Biblioteca digital</p>
+                <h1 class="brand__title">DEPARTAMENTO DE ESTADÍSTICA E INFORMÁTICA</h1>
             </div>
         </div>
-    </div>
 
-    <footer class="footer">
-        <p>&copy; 2026 Carrera de Estadística. Todos los derechos reservados.</p>
-    </footer>
+        <nav class="nav" aria-label="Navegación principal">
+            <a href="#inicio" class="nav__link nav__link--active">Inicio</a>
+            <a href="#profesores" class="nav__link">Profesores</a>
+            <a href="#administradores" class="nav__link">Administradores</a>
+        </nav>
+    </header>
 
-    <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            await cargarCiclosFiltro();
-            cargarLibros();
-            document.getElementById('ciclo-filter').addEventListener('change', cargarCursosPorCiclo);
-        });
-    </script>
+    <main>
+        <section class="hero" id="inicio">
+            <div class="hero__content">
+                <p class="hero__label">Repositorio académico organizado</p>
+                <h2>Encuentra material de estudio con una interfaz clara y profesional.</h2>
+                <p class="hero__text">
+                    Filtra recursos por malla curricular, ciclo y curso para llegar rápido al contenido que necesitas.
+                </p>
+
+                <div class="hero__stats" aria-label="Resumen del sitio">
+                    <article class="stat-card">
+                        <span class="stat-card__value">3</span>
+                        <span class="stat-card__label">filtros principales</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-card__value">24/7</span>
+                        <span class="stat-card__label">consulta disponible</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-card__value">PDF</span>
+                        <span class="stat-card__label">material académico</span>
+                    </article>
+                </div>
+            </div>
+
+            <aside class="filter-panel" aria-labelledby="filtros-title">
+                <div class="filter-panel__header">
+                    <p class="section-kicker">Búsqueda del alumno</p>
+                    <h3 id="filtros-title">Filtra por curso y ciclo</h3>
+                    <p>Empieza con una selección y revisa los recursos sugeridos debajo.</p>
+                </div>
+
+                <form class="filters" id="filters-form">
+                    <label class="field" for="malla">
+                        <span>Malla curricular</span>
+                        <select id="malla" name="malla">
+                            <option value="">Todas las mallas</option>
+                        </select>
+                    </label>
+
+                    <label class="field" for="ciclo">
+                        <span>Ciclo</span>
+                        <select id="ciclo" name="ciclo">
+                            <option value="">Todos los ciclos</option>
+                        </select>
+                    </label>
+
+                    <label class="field" for="curso">
+                        <span>Curso</span>
+                        <select id="curso" name="curso">
+                            <option value="">Todos los cursos</option>
+                        </select>
+                    </label>
+
+                    <label class="field" for="search">
+                        <span>Búsqueda por título o autor</span>
+                        <input id="search" name="search" type="text" placeholder="Ej.: inferencia, bayesiana, algoritmia">
+                    </label>
+
+                    <button type="submit" class="filter-panel__button">Buscar material</button>
+                </form>
+            </aside>
+        </section>
+
+        <section class="results" aria-labelledby="resultados-title">
+            <div class="section-heading">
+                <p class="section-kicker">Selección inicial</p>
+                <h3 id="resultados-title">Material disponible</h3>
+            </div>
+
+            <div class="cards" id="results-list">
+                <article class="card card--empty">
+                    <p>Cargando libros...</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="roles" aria-label="Accesos por perfil">
+            <article class="role-card" id="profesores">
+                <p class="role-card__tag">Profesores</p>
+                <h3>Publica y organiza material por curso.</h3>
+                <p>Más adelante conectaremos esta zona con la carga de archivos y el panel docente.</p>
+                <a href="admin.html" class="role-card__link">Ir al acceso docente</a>
+            </article>
+
+            <article class="role-card" id="administradores">
+                <p class="role-card__tag">Administradores</p>
+                <h3>Gestiona contenido, ciclos y cursos disponibles.</h3>
+                <p>Esta sección quedará lista para validación, administración y control del sistema.</p>
+                <a href="admin.html" class="role-card__link">Ir al panel administrativo</a>
+            </article>
+        </section>
+    </main>
 </body>
 </html>

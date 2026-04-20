@@ -1,36 +1,24 @@
 <?php
-header('Content-Type: application/json');
-require_once 'config.php';
+require __DIR__ . '/config.php';
 
-$conn = obtenerConexion();
+$cycleId = isset($_GET['cycle_id']) ? (int) $_GET['cycle_id'] : 0;
 
-$ciclo = isset($_GET['ciclo']) ? intval($_GET['ciclo']) : 0;
+$sql =
+    'SELECT co.id, co.cycle_id, co.name, co.slug, co.order_in_cycle, cy.cycle_number, cur.name AS curriculum_name
+     FROM courses co
+     INNER JOIN cycles cy ON cy.id = co.cycle_id
+     INNER JOIN curricula cur ON cur.id = cy.curriculum_id';
 
-if ($ciclo <= 0) {
-    responderJSON(false, 'Ciclo inválido');
+if ($cycleId > 0) {
+    $sql .= ' WHERE co.cycle_id = ?';
+    $sql .= ' ORDER BY co.order_in_cycle, co.name';
+    $statement = db()->prepare($sql);
+    $statement->bind_param('i', $cycleId);
+    $statement->execute();
+    $rows = $statement->get_result()->fetch_all(MYSQLI_ASSOC);
+} else {
+    $sql .= ' ORDER BY cy.cycle_number, co.order_in_cycle, co.name';
+    $rows = db()->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
-// Verificar que el ciclo exista
-$sql_check_ciclo = "SELECT id FROM ciclos WHERE id = ?";
-$stmt_check_ciclo = $conn->prepare($sql_check_ciclo);
-$stmt_check_ciclo->bind_param("i", $ciclo);
-$stmt_check_ciclo->execute();
-$result_check_ciclo = $stmt_check_ciclo->get_result();
-if (!$result_check_ciclo || $result_check_ciclo->num_rows === 0) {
-    responderJSON(false, 'Ciclo no encontrado');
-}
-
-$sql = "SELECT MIN(id) AS id, nombre FROM cursos WHERE ciclo_id = ? GROUP BY nombre ORDER BY nombre";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $ciclo);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$courses = array();
-
-while ($row = $result->fetch_assoc()) {
-    $courses[] = $row;
-}
-
-responderJSON(true, 'Cursos obtenidos', array('courses' => $courses));
-?>
+json_response(['success' => true, 'data' => $rows]);

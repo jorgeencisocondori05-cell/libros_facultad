@@ -1,43 +1,39 @@
 <?php
-header('Content-Type: application/json');
-require_once 'config.php';
+require __DIR__ . '/config.php';
 
-$conn = obtenerConexion();
+$user = require_role(['docente', 'admin']);
 
-$input = json_decode(file_get_contents('php://input'), true);
-
-$libro_id = isset($input['libro_id']) ? intval($input['libro_id']) : 0;
-
-if ($libro_id <= 0) {
-    responderJSON(false, 'ID de libro inválido');
+$payload = $_POST;
+if (!$payload) {
+    $payload = request_data();
 }
 
-// Obtener nombre del archivo antes de eliminar
-$sql_select = "SELECT archivo_pdf FROM libros WHERE id = ?";
-$stmt_select = $conn->prepare($sql_select);
-$stmt_select->bind_param("i", $libro_id);
-$stmt_select->execute();
-$result = $stmt_select->get_result();
-$row = $result->fetch_assoc();
+$bookId = (int) ($payload['book_id'] ?? 0);
 
-if (!$row) {
-    responderJSON(false, 'Libro no encontrado');
+if ($bookId <= 0) {
+    json_response(['success' => false, 'message' => 'Debes indicar el libro a eliminar.'], 422);
 }
 
-// Eliminar archivo
-$archivo = '../descargas/' . $row['archivo_pdf'];
-if (file_exists($archivo)) {
-    unlink($archivo);
+$statement = db()->prepare('SELECT id, uploaded_by, file_path FROM books WHERE id = ? LIMIT 1');
+$statement->bind_param('i', $bookId);
+$statement->execute();
+$book = $statement->get_result()->fetch_assoc();
+
+if (!$book) {
+    json_response(['success' => false, 'message' => 'Libro no encontrado.'], 404);
 }
 
-// Eliminar de base de datos
-$sql_delete = "DELETE FROM libros WHERE id = ?";
-$stmt_delete = $conn->prepare($sql_delete);
-$stmt_delete->bind_param("i", $libro_id);
-
-if ($stmt_delete->execute()) {
-    responderJSON(true, 'Libro eliminado exitosamente');
-} else {
-    responderJSON(false, 'Error al eliminar el libro');
+if ($user['role'] === 'docente' && (int) $book['uploaded_by'] !== (int) $user['id']) {
+    json_response(['success' => false, 'message' => 'Solo puedes eliminar tus propios libros.'], 403);
 }
-?>
+
+$delete = db()->prepare('DELETE FROM books WHERE id = ? LIMIT 1');
+$delete->bind_param('i', $bookId);
+$delete->execute();
+
+$absolutePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, (string) $book['file_path']);
+if (is_file($absolutePath)) {
+    unlink($absolutePath);
+}
+
+json_response(['success' => true, 'message' => 'Libro eliminado correctamente.']);

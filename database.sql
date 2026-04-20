@@ -1,151 +1,172 @@
--- Script de instalación de la Biblioteca Digital
--- Base de datos para la Carrera de Estadística
+CREATE DATABASE IF NOT EXISTS libros_facultad
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 
--- Crear base de datos
-CREATE DATABASE IF NOT EXISTS biblioteca_estadistica;
-USE biblioteca_estadistica;
+USE libros_facultad;
 
--- Tabla de profesores
-CREATE TABLE IF NOT EXISTS profesores (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(100),
-    usuario VARCHAR(50) UNIQUE NOT NULL,
-    contraseña VARCHAR(255) NOT NULL,
-    departamento VARCHAR(100),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+SET FOREIGN_KEY_CHECKS = 0;
 
--- Tabla de ciclos
-CREATE TABLE IF NOT EXISTS ciclos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    numero INT UNIQUE NOT NULL,
-    nombre VARCHAR(50)
-);
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS cycles;
+DROP TABLE IF EXISTS curricula;
+DROP TABLE IF EXISTS roles;
 
--- Tabla de cursos
-CREATE TABLE IF NOT EXISTS cursos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    ciclo_id INT NOT NULL,
-    descripcion TEXT,
-    FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE
-);
+SET FOREIGN_KEY_CHECKS = 1;
 
--- Tabla de libros
-CREATE TABLE IF NOT EXISTS libros (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    titulo VARCHAR(200) NOT NULL,
-    autor VARCHAR(100) NOT NULL,
-    curso_id INT NOT NULL,
-    ciclo_id INT NOT NULL,
-    profesor_id INT NOT NULL,
-    descripcion TEXT,
-    isbn VARCHAR(20),
-    año_publicacion INT,
-    archivo_pdf VARCHAR(255) NOT NULL,
-    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    descargas INT DEFAULT 0,
-    FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE,
-    FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
-    FOREIGN KEY (profesor_id) REFERENCES profesores(id) ON DELETE CASCADE
-);
+CREATE TABLE roles (
+    id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    slug VARCHAR(20) NOT NULL,
+    name VARCHAR(60) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_roles_slug (slug)
+) ENGINE=InnoDB;
 
--- Tabla de log de descargas
-CREATE TABLE IF NOT EXISTS descargas_log (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    libro_id INT NOT NULL,
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_usuario VARCHAR(45),
-    FOREIGN KEY (libro_id) REFERENCES libros(id) ON DELETE CASCADE
-);
+CREATE TABLE curricula (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code VARCHAR(40) NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_curricula_code (code)
+) ENGINE=InnoDB;
 
--- Insertar ciclos
-INSERT IGNORE INTO ciclos (numero, nombre) VALUES 
-(1, 'I Ciclo'),
-(2, 'II Ciclo'),
-(3, 'III Ciclo'),
-(4, 'IV Ciclo'),
-(5, 'V Ciclo'),
-(6, 'VI Ciclo'),
-(7, 'VII Ciclo'),
-(8, 'VIII Ciclo'),
-(9, 'IX Ciclo'),
-(10, 'X Ciclo');
+CREATE TABLE cycles (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    curriculum_id SMALLINT UNSIGNED NOT NULL,
+    cycle_number TINYINT UNSIGNED NOT NULL,
+    label VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_cycles_curriculum_number (curriculum_id, cycle_number),
+    CONSTRAINT fk_cycles_curriculum
+        FOREIGN KEY (curriculum_id) REFERENCES curricula (id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB;
 
--- Insertar cursos de ejemplo
-INSERT IGNORE INTO cursos (nombre, ciclo_id, descripcion) VALUES
-('Introducción a la Ciencia de Datos', 1, 'Curso base del primer ciclo'),
-('Técnicas de Exploración de Datos', 2, 'Métodos de análisis exploratorio'),
-('Ingeniería de Procesos', 3, 'Diseño y mejora de procesos'),
-('Lenguaje de Programación 1', 3, 'Fundamentos de programación'),
-('Análisis Estadístico', 4, 'Métodos estadísticos clásicos'),
-('Lenguaje de Programación 2', 4, 'Programación avanzada'),
-('Métodos de Optimización', 4, 'Optimización matemática y numérica'),
-('Sistemas de Gestión de Base de Datos 1', 4, 'Bases de datos relacionales básicas'),
-('Análisis de Regresión', 5, 'Modelos de regresión y predicción'),
-('Cálculo de Probabilidades', 5, 'Probabilidad aplicada'),
-('Diseños Experimentales', 5, 'Diseño y análisis de experimentos'),
-('Estrategias de Muestreo', 5, 'Métodos de muestreo para inferencia'),
-('Lenguaje de Programación 3', 5, 'Programación orientada a datos'),
-('Sistema de Gestión de Base de Datos 2', 6, 'Administración avanzada de bases de datos'),
-('Inferencia Estadística', 6, 'Inferencia y pruebas de hipótesis avanzadas'),
-('Diseños Experimentales 2', 6, 'Diseños de experimentos avanzados'),
-('Técnicas Multivariadas', 6, 'Análisis multivariante de datos'),
-('Algoritmia', 6, 'Algoritmos y estructuras de datos'),
-('Sistemas de Información Gerencial', 7, 'Sistemas de información para toma de decisiones'),
-('Modelos Lineales 1', 7, 'Modelos lineales clásicos'),
-('Estadística Bayesiana', 7, 'Métodos bayesianos'),
-('Estadística Computacional', 7, 'Cálculo estadístico con software'),
-('Marketing', 7, 'Principios de marketing y análisis de mercado'),
-('Estadística No Paramétrica', 8, 'Métodos estadísticos no paramétricos'),
-('Gestión Estratégica de Datos', 8, 'Estrategias de datos en la organización'),
-('Investigación de Mercados', 8, 'Técnicas y análisis de investigación de mercado'),
-('Máquinas de Aprendizaje', 8, 'Aprendizaje automático y minería de datos'),
-('Modelos Lineales 2', 8, 'Modelos lineales avanzados'),
-('Seminario en Estadística e Informática', 8, 'Seminario de integración'),
-('Análisis de Series de Tiempo', 9, 'Modelado y predicción temporal'),
-('Ciencia de Datos 1', 9, 'Introducción práctica a ciencia de datos'),
-('Estadística Espacial', 9, 'Análisis de datos geoespaciales'),
-('Gestión de Proyectos de Información', 9, 'Metodologías de gestión de proyectos'),
-('Seminario en Estadística e Informática 2', 9, 'Seminario avanzado'),
-('Ciencia de Datos 2', 10, 'Segunda parte de ciencia de datos'),
-('Seminario en Estadística e Informática 3', 10, 'Proyecto final'),
-('Tecnologías Emergentes', 10, 'Tendencias y herramientas emergentes');
+CREATE TABLE courses (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    cycle_id SMALLINT UNSIGNED NOT NULL,
+    name VARCHAR(160) NOT NULL,
+    slug VARCHAR(180) NOT NULL,
+    order_in_cycle TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_courses_slug (slug),
+    KEY idx_courses_cycle (cycle_id),
+    CONSTRAINT fk_courses_cycle
+        FOREIGN KEY (cycle_id) REFERENCES cycles (id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB;
 
--- Insertar profesor demo (contraseña: demo123)
--- Usar: $2y$10$... que es el hash de 'demo123' con bcrypt
-INSERT IGNORE INTO profesores (nombre, email, usuario, contraseña, departamento) VALUES
-('Profesor Demo', 'profesor@ejemplo.com', 'demo', '$2y$10$Z8bqW8gqRQtMLWVzlNIzHeM/jmLFXzQBGqLqQn4i/0wG0N3hM2sC6', 'Estadística');
+CREATE TABLE users (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    role_id TINYINT UNSIGNED NOT NULL,
+    full_name VARCHAR(120) NOT NULL,
+    username VARCHAR(60) NOT NULL,
+    email VARCHAR(120) DEFAULT NULL,
+    password_hash CHAR(64) NOT NULL,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_users_username (username),
+    KEY idx_users_role (role_id),
+    CONSTRAINT fk_users_role
+        FOREIGN KEY (role_id) REFERENCES roles (id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB;
 
--- Crear índices para mejorar búsquedas
-CREATE INDEX idx_curso_ciclo ON cursos(ciclo_id);
-CREATE INDEX idx_libro_profesor ON libros(profesor_id);
-CREATE INDEX idx_libro_curso ON libros(curso_id);
-CREATE INDEX idx_libro_ciclo ON libros(ciclo_id);
-CREATE INDEX idx_libro_titulo ON libros(titulo);
-CREATE INDEX idx_libro_autor ON libros(autor);
+CREATE TABLE books (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    course_id INT UNSIGNED NOT NULL,
+    uploaded_by INT UNSIGNED NOT NULL,
+    title VARCHAR(180) NOT NULL,
+    author VARCHAR(120) NOT NULL,
+    description TEXT DEFAULT NULL,
+    isbn VARCHAR(30) DEFAULT NULL,
+    publication_year SMALLINT UNSIGNED DEFAULT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_books_course (course_id),
+    KEY idx_books_uploader (uploaded_by),
+    CONSTRAINT fk_books_course
+        FOREIGN KEY (course_id) REFERENCES courses (id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    CONSTRAINT fk_books_uploader
+        FOREIGN KEY (uploaded_by) REFERENCES users (id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB;
 
--- Vistas útiles
-CREATE OR REPLACE VIEW vista_libros_detallados AS
-SELECT 
-    l.id,
-    l.titulo,
-    l.autor,
-    l.descripcion,
-    l.isbn,
-    l.año_publicacion,
-    l.fecha_subida,
-    l.descargas,
-    c.nombre as curso_nombre,
-    c.ciclo_id,
-    ci.numero as ciclo,
-    p.nombre as profesor_nombre,
-    p.email as profesor_email
-FROM libros l
-JOIN cursos c ON l.curso_id = c.id
-JOIN ciclos ci ON l.ciclo_id = ci.id
-JOIN profesores p ON l.profesor_id = p.id
-ORDER BY l.fecha_subida DESC;
+INSERT INTO roles (slug, name) VALUES
+    ('admin', 'Administrador'),
+    ('docente', 'Docente');
 
--- Fin del script de instalación
+INSERT INTO curricula (code, name) VALUES
+    ('malla2019', 'malla2019');
+
+INSERT INTO cycles (curriculum_id, cycle_number, label) VALUES
+    (1, 1, 'Ciclo 1'),
+    (1, 2, 'Ciclo 2'),
+    (1, 3, 'Ciclo 3'),
+    (1, 4, 'Ciclo 4'),
+    (1, 5, 'Ciclo 5'),
+    (1, 6, 'Ciclo 6'),
+    (1, 7, 'Ciclo 7'),
+    (1, 8, 'Ciclo 8'),
+    (1, 9, 'Ciclo 9'),
+    (1, 10, 'Ciclo 10');
+
+INSERT INTO courses (cycle_id, name, slug, order_in_cycle) VALUES
+    (1, 'Introducción a la Ciencia de Datos', 'introduccion-a-la-ciencia-de-datos', 1),
+    (2, 'Técnicas de Exploración de Datos', 'tecnicas-de-exploracion-de-datos', 1),
+    (3, 'Ingeniería de Procesos', 'ingenieria-de-procesos', 1),
+    (3, 'Lenguaje de Programación 1', 'lenguaje-de-programacion-1', 2),
+    (4, 'Análisis Estadístico', 'analisis-estadistico', 1),
+    (4, 'Lenguaje de Programación 2', 'lenguaje-de-programacion-2', 2),
+    (4, 'Métodos de Optimización', 'metodos-de-optimizacion', 3),
+    (4, 'Sistemas de Gestión de Base de Datos 1', 'sistemas-de-gestion-de-base-de-datos-1', 4),
+    (5, 'Análisis de Regresión', 'analisis-de-regresion', 1),
+    (5, 'Cálculo de Probabilidades', 'calculo-de-probabilidades', 2),
+    (5, 'Diseños Experimentales', 'disenos-experimentales', 3),
+    (5, 'Estrategias de Muestreo', 'estrategias-de-muestreo', 4),
+    (5, 'Lenguaje de Programación 3', 'lenguaje-de-programacion-3', 5),
+    (6, 'Sistema de Gestión de Base de Datos 2', 'sistema-de-gestion-de-base-de-datos-2', 1),
+    (6, 'Inferencia Estadística', 'inferencia-estadistica', 2),
+    (6, 'Diseños Experimentales 2', 'disenos-experimentales-2', 3),
+    (6, 'Técnicas Multivariadas', 'tecnicas-multivariadas', 4),
+    (6, 'Algoritmia', 'algoritmia', 5),
+    (7, 'Sistemas de Información Gerencial', 'sistemas-de-informacion-gerencial', 1),
+    (7, 'Modelos Lineales 1', 'modelos-lineales-1', 2),
+    (7, 'Estadística Bayesiana', 'estadistica-bayesiana', 3),
+    (7, 'Estadística Computacional', 'estadistica-computacional', 4),
+    (7, 'Marketing', 'marketing', 5),
+    (8, 'Estadística No Paramétrica', 'estadistica-no-parametrica', 1),
+    (8, 'Gestión Estratégica de Datos', 'gestion-estrategica-de-datos', 2),
+    (8, 'Investigación de Mercados', 'investigacion-de-mercados', 3),
+    (8, 'Máquinas de Aprendizaje', 'maquinas-de-aprendizaje', 4),
+    (8, 'Modelos Lineales 2', 'modelos-lineales-2', 5),
+    (8, 'Seminario en Estadística e Informática', 'seminario-en-estadistica-e-informatica', 6),
+    (9, 'Análisis de Series de Tiempo', 'analisis-de-series-de-tiempo', 1),
+    (9, 'Ciencia de Datos 1', 'ciencia-de-datos-1', 2),
+    (9, 'Estadística Espacial', 'estadistica-espacial', 3),
+    (9, 'Gestión de Proyectos de Información', 'gestion-de-proyectos-de-informacion', 4),
+    (9, 'Seminario en Estadística e Informática 2', 'seminario-en-estadistica-e-informatica-2', 5),
+    (10, 'Ciencia de Datos 2', 'ciencia-de-datos-2', 1),
+    (10, 'Seminario en Estadística e Informática 3', 'seminario-en-estadistica-e-informatica-3', 2),
+    (10, 'Tecnologías Emergentes', 'tecnologias-emergentes', 3);
+
+-- Credenciales semilla en texto (para login):
+-- admin / admin12345
+-- profesor / profesor12345
+INSERT INTO users (role_id, full_name, username, email, password_hash) VALUES
+    (1, 'Administrador General', 'admin', 'admin@librosfacultad.local', '41e5653fc7aeb894026d6bb7b2db7f65902b454945fa8fd65a6327047b5277fb'),
+    (2, 'Profesor Demo', 'profesor', 'profesor@librosfacultad.local', 'd005f1a99bbc39517480d823814b666acdaf310ee1243ce0aa174954d20553b8');

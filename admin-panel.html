@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel administrador | Biblioteca Digital</title>
+  <meta name="description" content="Panel exclusivo para administradores de la biblioteca digital.">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="admin-panel.js"></script>
+</head>
+<body class="panel-page">
+  <header class="topbar panel-topbar">
+    <div class="brand">
+      <span class="brand__mark">DAEI</span>
+      <div>
+        <p class="brand__eyebrow">Panel administrador</p>
+        <h1 class="brand__title">Gestión total</h1>
+      </div>
+    </div>
+
+    <div class="panel-actions">
+      <p id="panel-user" class="panel-user">Validando sesión...</p>
+      <button id="logout-btn" class="role-card__link panel-logout" type="button">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="panel-main">
+    <section class="panel-grid" aria-label="Resumen del sistema">
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-books">-</span>
+        <span class="stat-card__label">libros</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-users">-</span>
+        <span class="stat-card__label">usuarios</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-courses">-</span>
+        <span class="stat-card__label">cursos</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-cycles">-</span>
+        <span class="stat-card__label">ciclos</span>
+      </article>
+    </section>
+
+    <section class="panel-columns">
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Crear malla curricular</h2>
+        <p>Registra una nueva versión de la malla para un año específico.</p>
+
+        <form id="create-curriculum-form" class="panel-form">
+          <label class="field" for="curriculum-name">
+            <span>Nombre base</span>
+            <input id="curriculum-name" name="name" type="text" value="malla2019" required>
+          </label>
+
+          <label class="field" for="curriculum-year">
+            <span>Año de la malla</span>
+            <input id="curriculum-year" name="year" type="number" min="2000" max="2100" required>
+          </label>
+
+          <button class="filter-panel__button" type="submit">Crear malla</button>
+        </form>
+      </article>
+
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Subir libro</h2>
+        <p>Desde aquí también puedes publicar material académico.</p>
+
+        <form id="upload-form" class="panel-form" enctype="multipart/form-data">
+          <label class="field" for="upload-title">
+            <span>Título</span>
+            <input id="upload-title" name="title" type="text" required>
+          </label>
+
+          <label class="field" for="upload-author">
+            <span>Autor</span>
+            <input id="upload-author" name="author" type="text" required>
+          </label>
+
+          <label class="field" for="upload-cycle">
+            <span>Ciclo</span>
+            <select id="upload-cycle" required>
+              <option value="">Selecciona ciclo</option>
+            </select>
+          </label>
+
+          <label class="field" for="upload-course">
+            <span>Curso</span>
+            <select id="upload-course" name="course_id" required>
+              <option value="">Selecciona curso</option>
+            </select>
+          </label>
+
+          <label class="field" for="upload-isbn">
+            <span>ISBN (opcional)</span>
+            <input id="upload-isbn" name="isbn" type="text">
+          </label>
+
+          <label class="field" for="upload-year">
+            <span>Año (opcional)</span>
+            <input id="upload-year" name="publication_year" type="number" min="1900" max="2100">
+          </label>
+
+          <label class="field" for="upload-description">
+            <span>Descripción</span>
+            <textarea id="upload-description" name="description" rows="3"></textarea>
+          </label>
+
+          <label class="field" for="upload-file">
+            <span>Archivo PDF</span>
+            <input id="upload-file" name="book_file" type="file" accept="application/pdf" required>
+          </label>
+
+          <button class="filter-panel__button" type="submit">Subir libro</button>
+        </form>
+      </article>
+    </section>
+
+    <section class="panel-columns">
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Crear curso</h2>
+        <p>Selecciona la malla y el ciclo para agregar un curso nuevo.</p>
+
+        <form id="create-course-form" class="panel-form">
+          <label class="field" for="course-curriculum">
+            <span>Malla curricular</span>
+            <select id="course-curriculum" name="curriculum_id" required>
+              <option value="">Selecciona una malla</option>
+            </select>
+          </label>
+
+          <label class="field" for="course-cycle">
+            <span>Ciclo</span>
+            <select id="course-cycle" name="cycle_id" required>
+              <option value="">Selecciona un ciclo</option>
+            </select>
+          </label>
+
+          <label class="field" for="course-name">
+            <span>Nombre del curso</span>
+            <input id="course-name" name="name" type="text" required>
+          </label>
+
+          <label class="field" for="course-order">
+            <span>Orden en el ciclo</span>
+            <input id="course-order" name="order_in_cycle" type="number" min="1" value="1" required>
+          </label>
+
+          <button class="filter-panel__button" type="submit">Crear curso</button>
+        </form>
+      </article>
+
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Mallas registradas</h2>
+        <div id="curricula-list" class="panel-list"></div>
+      </article>
+    </section>
+
+    <section class="panel-columns">
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Cursos registrados</h2>
+        <label class="field" for="course-search">
+          <span>Buscar curso</span>
+          <input id="course-search" type="text" placeholder="Busca por nombre, malla o ciclo">
+        </label>
+        <div id="courses-list" class="panel-list"></div>
+      </article>
+
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Libros cargados</h2>
+        <p>Se muestran todos los libros del sistema.</p>
+        <div id="books-list" class="panel-list"></div>
+      </article>
+    </section>
+
+    <section class="panel-admin">
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Crear usuario</h2>
+
+        <form id="create-user-form" class="panel-form">
+          <label class="field" for="new-full-name">
+            <span>Nombre completo</span>
+            <input id="new-full-name" name="full_name" type="text" required>
+          </label>
+
+          <label class="field" for="new-username">
+            <span>Usuario</span>
+            <input id="new-username" name="username" type="text" required>
+          </label>
+
+          <label class="field" for="new-email">
+            <span>Email (opcional)</span>
+            <input id="new-email" name="email" type="email">
+          </label>
+
+          <label class="field" for="new-password">
+            <span>Contraseña</span>
+            <input id="new-password" name="password" type="text" required>
+          </label>
+
+          <label class="field" for="new-role">
+            <span>Rol</span>
+            <select id="new-role" name="role">
+              <option value="docente">Docente</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </label>
+
+          <button class="filter-panel__button" type="submit">Crear usuario</button>
+        </form>
+      </article>
+
+      <article class="panel-card">
+        <p class="section-kicker">Administrador</p>
+        <h2>Usuarios registrados</h2>
+        <div id="users-list" class="panel-list"></div>
+      </article>
+    </section>
+
+    <p id="panel-message" class="login-message" data-type="info"></p>
+  </main>
+</body>
+</html>

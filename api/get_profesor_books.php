@@ -1,32 +1,25 @@
 <?php
-header('Content-Type: application/json');
-require_once 'config.php';
+require __DIR__ . '/config.php';
 
-$conn = obtenerConexion();
+$user = require_role(['docente', 'admin']);
 
-$profesor_id = isset($_GET['profesor_id']) ? intval($_GET['profesor_id']) : 0;
+$sql =
+    'SELECT b.id, b.title, b.author, b.description, b.isbn, b.publication_year, b.file_path,
+            co.name AS course_name, cy.cycle_number, b.created_at, u.full_name AS uploaded_by_name
+     FROM books b
+     INNER JOIN courses co ON co.id = b.course_id
+     INNER JOIN cycles cy ON cy.id = co.cycle_id
+     INNER JOIN users u ON u.id = b.uploaded_by';
 
-if ($profesor_id <= 0) {
-    responderJSON(false, 'ID de profesor inválido');
+if ($user['role'] === 'docente') {
+    $sql .= ' WHERE b.uploaded_by = ? ORDER BY b.created_at DESC';
+    $statement = db()->prepare($sql);
+    $statement->bind_param('i', $user['id']);
+    $statement->execute();
+    $rows = $statement->get_result()->fetch_all(MYSQLI_ASSOC);
+} else {
+    $sql .= ' ORDER BY b.created_at DESC';
+    $rows = db()->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
-$sql = "SELECT l.*, COALESCE(l.archivo_pdf, '') AS archivo_pdf, CONCAT('/libros_facultad/descargas/', COALESCE(l.archivo_pdf, '')) AS archivo_url, c.nombre as curso_nombre, ci.numero as ciclo_numero, ci.nombre as ciclo_nombre 
-        FROM libros l 
-        JOIN cursos c ON l.curso_id = c.id 
-        JOIN ciclos ci ON c.ciclo_id = ci.id 
-        WHERE l.profesor_id = ? 
-        ORDER BY l.fecha_subida DESC";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $profesor_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$books = array();
-
-while ($row = $result->fetch_assoc()) {
-    $books[] = $row;
-}
-
-responderJSON(true, 'Libros obtenidos', array('books' => $books));
-?>
+json_response(['success' => true, 'data' => $rows]);

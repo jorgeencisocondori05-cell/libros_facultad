@@ -1,90 +1,75 @@
 <?php
-header('Content-Type: application/json');
-require_once 'config.php';
+require __DIR__ . '/config.php';
 
-$conn = obtenerConexion();
+$user = require_role(['docente', 'admin']);
 
-// Crear carpeta de descargas si no existe
-if (!is_dir('../descargas')) {
-    mkdir('../descargas', 0777, true);
+$title = trim((string) ($_POST['title'] ?? ''));
+$author = trim((string) ($_POST['author'] ?? ''));
+$courseId = (int) ($_POST['course_id'] ?? 0);
+$description = trim((string) ($_POST['description'] ?? ''));
+$isbn = trim((string) ($_POST['isbn'] ?? ''));
+$publicationYear = (int) ($_POST['publication_year'] ?? 0);
+$yearValue = $publicationYear > 0 ? $publicationYear : null;
+$uploaderId = (int) $user['id'];
+
+if ($title === '' || $author === '' || $courseId <= 0) {
+    json_response(['success' => false, 'message' => 'Faltan datos obligatorios.'], 422);
 }
 
-$titulo = isset($_POST['titulo']) ? trim($_POST['titulo']) : '';
-$autor = isset($_POST['autor']) ? trim($_POST['autor']) : '';
-$ciclo = isset($_POST['ciclo']) ? intval($_POST['ciclo']) : 0;
-$curso = isset($_POST['curso']) ? intval($_POST['curso']) : 0;
-$año = isset($_POST['año']) ? intval($_POST['año']) : null;
-$isbn = isset($_POST['isbn']) ? trim($_POST['isbn']) : '';
-$descripcion = isset($_POST['descripcion']) ? trim($_POST['descripcion']) : '';
-$profesor_id = isset($_POST['profesor_id']) ? intval($_POST['profesor_id']) : 0;
+$courseStatement = db()->prepare('SELECT id FROM courses WHERE id = ? AND active = 1 LIMIT 1');
+$courseStatement->bind_param('i', $courseId);
+$courseStatement->execute();
 
-// Validaciones
-if (empty($titulo) || empty($autor) || $ciclo <= 0 || $curso <= 0) {
-    responderJSON(false, 'Todos los campos requeridos deben completarse');
+if (!$courseStatement->get_result()->fetch_assoc()) {
+    json_response(['success' => false, 'message' => 'El curso indicado no existe.'], 404);
 }
 
-// Validar relación curso-ciclo
-$sql_curso = "SELECT ciclo_id FROM cursos WHERE id = ?";
-$stmt_curso = $conn->prepare($sql_curso);
-$stmt_curso->bind_param("i", $curso);
-$stmt_curso->execute();
-$result_curso = $stmt_curso->get_result();
-if (!$result_curso || $result_curso->num_rows === 0) {
-    responderJSON(false, 'Curso inválido');
-}
-$curso_datos = $result_curso->fetch_assoc();
-$ciclo_del_curso = intval($curso_datos['ciclo_id']);
-
-if ($ciclo_del_curso !== $ciclo) {
-    responderJSON(false, 'Ciclo y curso no coinciden. Seleccione el curso correspondiente al ciclo.');
+if (!isset($_FILES['book_file']) || $_FILES['book_file']['error'] !== UPLOAD_ERR_OK) {
+    json_response(['success' => false, 'message' => 'Debes subir un archivo PDF.'], 422);
 }
 
-// Establecer ciclo según curso para evitar inconsistencias
-$ciclo = $ciclo_del_curso;
+$uploadedFile = $_FILES['book_file'];
+$originalName = (string) $uploadedFile['name'];
+$extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
-if (!isset($_FILES['archivo']) || $_FILES['archivo']['error'] !== UPLOAD_ERR_OK) {
-    responderJSON(false, 'Error al subir el archivo');
+if ($extension !== 'pdf') {
+    json_response(['success' => false, 'message' => 'Solo se permiten archivos PDF.'], 422);
 }
 
-$archivo = $_FILES['archivo'];
-
-// Validar tipo de archivo
-$tipo_archivo = mime_content_type($archivo['tmp_name']);
-if ($tipo_archivo !== 'application/pdf') {
-    responderJSON(false, 'El archivo debe ser un PDF');
+if (!is_dir(UPLOAD_DIR)) {
+    mkdir(UPLOAD_DIR, 0777, true);
 }
 
-// Validar tamaño
-if ($archivo['size'] > 50 * 1024 * 1024) {
-    responderJSON(false, 'El archivo no debe exceder 50MB');
+$fileBase = normalize_upload_name($originalName);
+$fileName = $fileBase . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.pdf';
+$destination = UPLOAD_DIR . DIRECTORY_SEPARATOR . $fileName;
+
+if (!move_uploaded_file($uploadedFile['tmp_name'], $destination)) {
+    json_response(['success' => false, 'message' => 'No se pudo guardar el archivo.'], 500);
 }
 
-// Generar nombre único para el archivo
-$nombre_archivo = 'libro_' . time() . '_' . uniqid() . '.pdf';
-$ruta_archivo = '../descargas/' . $nombre_archivo;
+$relativePath = 'descargas/' . $fileName;
 
-// Mover archivo
-if (!move_uploaded_file($archivo['tmp_name'], $ruta_archivo)) {
-    responderJSON(false, 'Error al guardar el archivo');
-}
+$statement = db()->prepare(
+    'INSERT INTO books (course_id, uploaded_by, title, author, description, isbn, publication_year, file_name, file_path)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+);
+$statement->bind_param(
+    'iissssiss',
+    $courseId,
+    $uploaderId,
+    $title,
+    $author,
+    $description,
+    $isbn,
+    $yearValue,
+    $fileName,
+    $relativePath
+);
+$statement->execute();
 
-// Insertar en base de datos
-$sql = "INSERT INTO libros (titulo, autor, curso_id, ciclo_id, profesor_id, descripcion, isbn, año_publicacion, archivo_pdf) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    unlink($ruta_archivo);
-    responderJSON(false, 'Error en la base de datos: ' . $conn->error);
-}
-
-$stmt->bind_param("ssiiiisss", $titulo, $autor, $curso, $ciclo, $profesor_id, $descripcion, $isbn, $año, $nombre_archivo);
-
-if ($stmt->execute()) {
-    responderJSON(true, 'Libro subido exitosamente');
-} else {
-    unlink($ruta_archivo);
-    responderJSON(false, 'Error al guardar en la base de datos');
-}
-?>
+json_response([
+    'success' => true,
+    'message' => 'Libro cargado correctamente.',
+    'data' => ['id' => db()->insert_id, 'file_path' => $relativePath],
+]);

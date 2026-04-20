@@ -1,45 +1,52 @@
 <?php
-header('Content-Type: application/json');
-require_once 'config.php';
+require __DIR__ . '/config.php';
 
-$conn = obtenerConexion();
+$payload = $_POST;
 
-$input = json_decode(file_get_contents('php://input'), true);
-
-$usuario = isset($input['usuario']) ? $input['usuario'] : '';
-$contraseña = isset($input['contraseña']) ? $input['contraseña'] : '';
-
-if (empty($usuario) || empty($contraseña)) {
-    responderJSON(false, 'Usuario y contraseña requeridos');
+if (!$payload) {
+    $payload = request_data();
 }
 
-$sql = "SELECT id, nombre, email, usuario, departamento FROM profesores WHERE usuario = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $usuario);
-$stmt->execute();
-$result = $stmt->get_result();
+$username = trim((string) ($payload['username'] ?? ''));
+$password = trim((string) ($payload['password'] ?? ''));
+$role = trim((string) ($payload['role'] ?? ''));
 
-if ($result->num_rows === 0) {
-    responderJSON(false, 'Usuario o contraseña incorrectos');
+if ($username === '' || $password === '' || $role === '') {
+    json_response(['success' => false, 'message' => 'Completa usuario, contraseña y tipo de acceso.'], 422);
 }
 
-$profesor = $result->fetch_assoc();
-
-// Obtener contraseña hasheada de la base de datos para verificar
-$sql_pass = "SELECT contraseña FROM profesores WHERE usuario = ?";
-$stmt_pass = $conn->prepare($sql_pass);
-$stmt_pass->bind_param("s", $usuario);
-$stmt_pass->execute();
-$result_pass = $stmt_pass->get_result();
-$row_pass = $result_pass->fetch_assoc();
-
-// Verificar contraseña
-if (!password_verify($contraseña, $row_pass['contraseña'])) {
-    // Para compatibilidad, también verificar texto plano en desarrollo
-    if ($contraseña !== $row_pass['contraseña']) {
-        responderJSON(false, 'Usuario o contraseña incorrectos');
-    }
+$allowedRoles = ['docente', 'admin'];
+if (!in_array($role, $allowedRoles, true)) {
+    json_response(['success' => false, 'message' => 'Tipo de acceso inválido.'], 422);
 }
 
-responderJSON(true, 'Login exitoso', array('profesor' => $profesor));
-?>
+$passwordHash = hash('sha256', $password);
+
+$statement = db()->prepare(
+    'SELECT u.id, u.full_name, u.username, u.email, r.slug AS role
+     FROM users u
+     INNER JOIN roles r ON r.id = u.role_id
+     WHERE u.username = ? AND u.password_hash = ? AND r.slug = ? AND u.active = 1
+     LIMIT 1'
+);
+$statement->bind_param('sss', $username, $passwordHash, $role);
+$statement->execute();
+$user = $statement->get_result()->fetch_assoc();
+
+if (!$user) {
+    json_response(['success' => false, 'message' => 'Usuario o contraseña incorrectos.'], 401);
+}
+
+$_SESSION['user'] = [
+    'id' => (int) $user['id'],
+    'full_name' => $user['full_name'],
+    'username' => $user['username'],
+    'email' => $user['email'],
+    'role' => $user['role'],
+];
+
+json_response([
+    'success' => true,
+    'message' => 'Inicio de sesión correcto.',
+    'user' => $_SESSION['user'],
+]);

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel docente | Biblioteca Digital</title>
+  <meta name="description" content="Panel exclusivo para docentes de la biblioteca digital.">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="panel.js"></script>
+</head>
+<body class="panel-page">
+  <header class="topbar panel-topbar">
+    <div class="brand">
+      <span class="brand__mark">BD</span>
+      <div>
+        <p class="brand__eyebrow">Panel docente</p>
+        <h1 class="brand__title">Gestión de libros</h1>
+      </div>
+    </div>
+
+    <div class="panel-actions">
+      <p id="panel-user" class="panel-user">Validando sesión...</p>
+      <button id="logout-btn" class="role-card__link panel-logout" type="button">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="panel-main">
+    <section class="panel-grid" aria-label="Resumen del sistema">
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-books">-</span>
+        <span class="stat-card__label">libros</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-courses">-</span>
+        <span class="stat-card__label">cursos</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__value" id="stat-cycles">-</span>
+        <span class="stat-card__label">ciclos</span>
+      </article>
+    </section>
+
+    <section class="panel-columns">
+      <article class="panel-card">
+        <p class="section-kicker">Docente</p>
+        <h2>Subir libro</h2>
+        <p>Completa los datos y adjunta el PDF para publicarlo.</p>
+
+        <form id="upload-form" class="panel-form" enctype="multipart/form-data">
+          <label class="field" for="upload-title">
+            <span>Título</span>
+            <input id="upload-title" name="title" type="text" required>
+          </label>
+
+          <label class="field" for="upload-author">
+            <span>Autor</span>
+            <input id="upload-author" name="author" type="text" required>
+          </label>
+
+          <label class="field" for="upload-cycle">
+            <span>Ciclo</span>
+            <select id="upload-cycle" required>
+              <option value="">Selecciona ciclo</option>
+            </select>
+          </label>
+
+          <label class="field" for="upload-course">
+            <span>Curso</span>
+            <select id="upload-course" name="course_id" required>
+              <option value="">Selecciona curso</option>
+            </select>
+          </label>
+
+          <label class="field" for="upload-isbn">
+            <span>ISBN (opcional)</span>
+            <input id="upload-isbn" name="isbn" type="text">
+          </label>
+
+          <label class="field" for="upload-year">
+            <span>Año (opcional)</span>
+            <input id="upload-year" name="publication_year" type="number" min="1900" max="2100">
+          </label>
+
+          <label class="field" for="upload-description">
+            <span>Descripción</span>
+            <textarea id="upload-description" name="description" rows="3"></textarea>
+          </label>
+
+          <label class="field" for="upload-file">
+            <span>Archivo PDF</span>
+            <input id="upload-file" name="book_file" type="file" accept="application/pdf" required>
+          </label>
+
+          <button class="filter-panel__button" type="submit">Subir libro</button>
+        </form>
+      </article>
+
+      <article class="panel-card">
+        <p class="section-kicker">Docente</p>
+        <h2>Libros cargados</h2>
+        <p id="books-note">Se muestran tus libros si eres docente, o todos si eres administrador.</p>
+        <div id="books-list" class="panel-list"></div>
+      </article>
+    </section>
+
+    <p id="panel-message" class="login-message" data-type="info"></p>
+  </main>
+</body>
+</html>
