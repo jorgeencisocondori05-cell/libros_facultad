@@ -1,10 +1,10 @@
 <p align="center">
-	<img src="https://img.shields.io/badge/Proyecto-Biblioteca%20Digital%20DAEI-0b5fff?style=for-the-badge" alt="Proyecto Biblioteca Digital DAEI">
+	<img src="https://img.shields.io/badge/Proyecto-Biblioteca%20Digital%20DAEI-0b5fff?style=for-the-badge" alt="Proyecto PORTAL EI DAEI">
 	<img src="https://img.shields.io/badge/Stack-PHP%20%7C%20MySQL%20%7C%20JavaScript-111827?style=for-the-badge" alt="Stack tecnológico">
 	<img src="https://img.shields.io/badge/Formato-PDF%20Acad%C3%A9mico-16a34a?style=for-the-badge" alt="Formato PDF Académico">
 </p>
 
-<h1 align="center">Biblioteca Digital del Departamento de Estadística e Informática</h1>
+<h1 align="center">PORTAL EI DAEI</h1>
 
 <p align="center">
 	Repositorio web para organizar, consultar y administrar material académico en formato PDF.
